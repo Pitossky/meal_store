@@ -1,20 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:online_store/models/meals_data.dart';
 import 'package:online_store/widget/meal_details.dart';
 
-class CategoryDetails extends StatelessWidget {
+import '../models/meal_model.dart';
+
+class CategoryDetails extends StatefulWidget {
   static const routeName = '/category-details';
+
+  final List<MealModel> availableMeals;
+
+  CategoryDetails({
+    required this.availableMeals,
+});
+
+  @override
+  State<CategoryDetails> createState() => _CategoryDetailsState();
+}
+
+class _CategoryDetailsState extends State<CategoryDetails> {
+  String? catItemTitle;
+  late List<MealModel> mealDetails;
+  bool loadedInitData = false;
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+   if (!loadedInitData) {
+     final routeArguments =
+     ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+     catItemTitle = routeArguments['title'];
+     final catItemId = routeArguments['id'];
+     mealDetails = widget.availableMeals
+         .where((meals) => meals.mealCategories.contains(catItemId))
+         .toList();
+     loadedInitData = true;
+   }
+    super.didChangeDependencies();
+  }
+
+  void _removeMeal(String mealId) {
+    setState(() {
+      mealDetails.removeWhere((element) => element.mealId == mealId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final routeArguments =
-        ModalRoute.of(context)!.settings.arguments as Map<String, String>;
-    final catItemTitle = routeArguments['title'];
-    final catItemId = routeArguments['id'];
-    final mealDetails = mealList
-        .where((meals) => meals.mealCategories.contains(catItemId))
-        .toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
